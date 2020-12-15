@@ -19,12 +19,12 @@ class ChemicalMax(MRJob):
  def combine(self, key, values):
 	yield (key, max(values))
 
- def reducer_count_death(self, key, values):
+ def reducer_count_chemical(self, key, values):
  	# send all (num_occurrences, word) pairs to the same reducer.
  	# num_occurrences is so we can easily use Python's max() function.
 	yield None, (max(values), key)
 
- def reducer_max_death(self, _, key_values_pairs):
+ def reducer_max_chemical(self, _, key_values_pairs):
  	# each item of word_count_pairs is calculated (count, word),
  	# so yielding one results in key=counts, value=word
  	try:
@@ -36,8 +36,8 @@ class ChemicalMax(MRJob):
    return [
      MRStep(mapper=self.mapper,
         combiner=self.combine,
-        reducer=self.reducer_count_death),
-     MRStep(reducer=self.reducer_max_death)
+        reducer=self.reducer_count_chemical),
+     MRStep(reducer=self.reducer_max_chemical)
     ]
 
 if __name__ == '__main__':
@@ -63,7 +63,7 @@ class ChemicalMin(MRJob):
  def combine(self, key, values):
 	yield (key, min(values))
 
- def reducer_count_death(self, key, values):
+ def reducer_count_chemical(self, key, values):
  	# send all (num_occurrences, word) pairs to the same reducer.
  	# num_occurrences is so we can easily use Python's min() function.
 	yield None, (min(values), key)
@@ -80,7 +80,7 @@ class ChemicalMin(MRJob):
    return [
      MRStep(mapper=self.mapper,
         combiner=self.combine,
-        reducer=self.reducer_count_death),
+        reducer=self.reducer_count_chemical),
      MRStep(reducer=self.reducer_min_chemical)
     ]
 
@@ -95,7 +95,7 @@ import csv
 
 cols = 'iso_code,continent,location,date,total_cases,new_cases,total_deaths,new_deaths'.split(',')
 
-class MostCase(MRJob):
+class Top5MostChemical(MRJob):
  
  def mapper(self, _, line):
    # Convert each line into a dictionary
@@ -106,7 +106,7 @@ class MostCase(MRJob):
     #take date and location as key and new cases as value
     yield (row['date'], row['location']), int(row['new_cases'])
  
- def reducer_count_death(self, key, values):
+ def reducer_count_product(self, key, values):
     # send all (num_occurrences, word) pairs to the same reducer.
      # num_occurrences is so we can easily use Python's max() function.
    yield None, ('%04d'%int(sum(values)), key)
@@ -126,12 +126,12 @@ class MostCase(MRJob):
    return [
      MRStep(mapper=self.mapper,
        #combiner=self.combine,
-       reducer=self.reducer_count_death),
+       reducer=self.reducer_count_product),
      MRStep(reducer=self.secondreducer)
      ]
 
 if __name__ == '__main__':
- MostCase.run()
+ Top5MostChemical.run()
 __________________________________________________________________
 Question 4
 
@@ -153,7 +153,7 @@ class ProductMin(MRJob):
  def combine(self, key, values):
 	yield (key, min(values))
 
- def reducer_count_death(self, key, values):
+ def reducer_count_chemical(self, key, values):
  	# send all (num_occurrences, word) pairs to the same reducer.
  	# num_occurrences is so we can easily use Python's min() function.
 	yield None, (min(values), key)
@@ -170,7 +170,7 @@ class ProductMin(MRJob):
    return [
      MRStep(mapper=self.mapper,
         combiner=self.combine,
-        reducer=self.reducer_count_death),
+        reducer=self.reducer_count_chemical),
      MRStep(reducer=self.reducer_min_product)
     ]
 
